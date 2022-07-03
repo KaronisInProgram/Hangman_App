@@ -13,7 +13,7 @@ public interface IPlayerManager {
      * <p>
      * Every new Player should be added to do the last Action in the current Round.
      */
-    void addPlayer(UUID player, String name);
+    void addPlayer(IPlayer player);
 
     /**
      * Return the Player, which will do the next guess.
@@ -27,5 +27,5 @@ public interface IPlayerManager {
      * Removes a Player if he does not participate anymore in a Game.
      * The Player should be removed without disturbing other active Players.
      */
-    void removePlayer(UUID player);
+    void removePlayer(IPlayer player);
 }

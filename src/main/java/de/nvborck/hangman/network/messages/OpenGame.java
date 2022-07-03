@@ -12,13 +12,13 @@ import java.util.UUID;
 public class OpenGame {
 
     private UUID id;
-    private String word;
+    private String name;
 
     private byte[] serializedMessage;
 
-    public OpenGame(UUID id, String word) throws IOException {
+    public OpenGame(UUID id, String name) throws IOException {
         this.id = id;
-        this.word = word;
+        this.name = name;
 
         this.serialize();
     }
@@ -33,13 +33,13 @@ public class OpenGame {
     }
 
     public String getWord() {
-        return this.word;
+        return this.name;
     }
 
     private void serialize() throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASAPSerialization.writeCharSequenceParameter(this.word, baos);
+        ASAPSerialization.writeCharSequenceParameter(this.name, baos);
         ASAPSerialization.writeCharSequenceParameter(this.id.toString(), baos);
         this.serializedMessage = baos.toByteArray();
     }
@@ -47,7 +47,7 @@ public class OpenGame {
     private void deserialize() throws IOException, ASAPException {
 
         InputStream is = new ByteArrayInputStream(this.serializedMessage);
-        this.word = ASAPSerialization.readCharSequenceParameter(is);
+        this.name = ASAPSerialization.readCharSequenceParameter(is);
         this.id = UUID.fromString(ASAPSerialization.readCharSequenceParameter(is));
     }
 

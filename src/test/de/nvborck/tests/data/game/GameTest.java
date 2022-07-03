@@ -20,15 +20,14 @@ public class GameTest {
     void byStartWithoutPredefinedParamsCorrectInitialization() {
 
         // Arrange
-        IGame game = new Game(provider);
+        IGame game = new Game();
 
         // Act
-        game.start();
+        game.start(provider.getRandomWord());
 
         // Assert
         Assertions.assertNotNull(game.getMaskedWord());
         Assertions.assertNotEquals("", game.getMaskedWord());
-        Assertions.assertNotNull(game.getId());
         Assertions.assertTrue(game.getUsedCharacter().isEmpty());
         Assertions.assertFalse(game.isFinished());
     }
@@ -37,15 +36,13 @@ public class GameTest {
     void byStartWithPredefinedParamsCorrectInitialization() {
 
         // Arrange
-        IGame game = new Game(provider);
-        UUID id = UUID.randomUUID();
+        IGame game = new Game();
 
         // Act
-        game.start("Test", id);
+        game.start("Test");
 
         // Assert
         Assertions.assertEquals("____", game.getMaskedWord());
-        Assertions.assertEquals(id, game.getId());
         Assertions.assertTrue(game.getUsedCharacter().isEmpty());
         Assertions.assertFalse(game.isFinished());
     }
@@ -54,21 +51,21 @@ public class GameTest {
     void aGuessUpdatesTheMaskedWordByHit() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-        UUID playerId = UUID.randomUUID();
-        String playerName = "Anna";
+        IPlayer player = new Player();
+        player.setName("Anna");
+        player.setId(UUID.randomUUID());
 
         // Act
-        game.start("Kuechengeraet", gameId);
+        game.start("Kuechengeraet");
 
-        playerManager.addPlayer(playerId, playerName);
-        game.guess('e', playerId);
+        playerManager.addPlayer(player);
+        game.guess('e', player);
         Assertions.assertEquals("__e__e__e__e_", game.getMaskedWord());
-        game.guess('g', playerId);
+        game.guess('g', player);
         Assertions.assertEquals("__e__e_ge__e_", game.getMaskedWord());
 
         // Assert
@@ -82,100 +79,101 @@ public class GameTest {
     void afterAGuessTheNextPlayerIsActive() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-
-        UUID player1Id = UUID.randomUUID();
-        String player1Name = "Anna";
-        UUID player2Id = UUID.randomUUID();
-        String player2Name = "Bob";
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(UUID.randomUUID());
+        IPlayer player2 = new Player();
+        player2.setName("Bob");
+        player2.setId(UUID.randomUUID());
 
         // Act
-        game.start("Kuechengeraet", gameId);
+        game.start("Kuechengeraet");
 
-        playerManager.addPlayer(player1Id, player1Name);
-        playerManager.addPlayer(player2Id, player2Name);
+        playerManager.addPlayer(player1);
+        playerManager.addPlayer(player2);
 
-        IPlayer player1 = playerManager.getActivePlayer();
-        game.guess('e', player1Id);
-        IPlayer player2 = playerManager.getActivePlayer();
-        game.guess('d', player2Id);
-        IPlayer player3 = playerManager.getActivePlayer();
+        IPlayer activePlayer1 = playerManager.getActivePlayer();
+        game.guess('e', player1);
+        IPlayer activePlayer2 = playerManager.getActivePlayer();
+        game.guess('d', player2);
+        IPlayer activePlayer3 = playerManager.getActivePlayer();
 
         // Assert
-        Assertions.assertNotEquals(player1.getId(), player2.getId());
-        Assertions.assertNotEquals(player2.getId(), player3.getId());
+        Assertions.assertNotEquals(activePlayer1.getId(), activePlayer2.getId());
+        Assertions.assertNotEquals(activePlayer2.getId(), activePlayer3.getId());
     }
 
     @Test
     void afterAGuessFromTheLastPlayerTheyLoop() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-
-        UUID player1Id = UUID.randomUUID();
-        String player1Name = "Anna";
-        UUID player2Id = UUID.randomUUID();
-        String player2Name = "Bob";
-        UUID player3Id = UUID.randomUUID();
-        String player3Name = "Chander";
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(UUID.randomUUID());
+        IPlayer player2 = new Player();
+        player2.setName("Bob");
+        player2.setId(UUID.randomUUID());
+        IPlayer player3 = new Player();
+        player3.setName("Charlie");
+        player3.setId(UUID.randomUUID());
 
         // Act
-        game.start("Kuechengeraet", gameId);
+        game.start("Kuechengeraet");
 
-        playerManager.addPlayer(player1Id, player1Name);
-        playerManager.addPlayer(player2Id, player2Name);
-        playerManager.addPlayer(player3Id, player3Name);
+        playerManager.addPlayer(player1);
+        playerManager.addPlayer(player2);
+        playerManager.addPlayer(player3);
 
-        IPlayer player1 = playerManager.getActivePlayer();
-        game.guess('e', player1Id);
-        game.guess('d', player2Id);
-        game.guess('f', player3Id);
-        IPlayer player4 = playerManager.getActivePlayer();
+        IPlayer activePlayer1 = playerManager.getActivePlayer();
+        game.guess('e', player1);
+        game.guess('d', player2);
+        game.guess('f', player3);
+        IPlayer activePlayer4 = playerManager.getActivePlayer();
 
         // Assert
-        Assertions.assertEquals(player1.getId(), player4.getId());
+        Assertions.assertEquals(activePlayer1, activePlayer4);
     }
 
     @Test
     void aGuessFromAnInactivePlayerIsResultsInNoChange() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-
-        UUID player1Id = UUID.randomUUID();
-        String player1Name = "Anna";
-        UUID player2Id = UUID.randomUUID();
-        String player2Name = "Bob";
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(UUID.randomUUID());
+        IPlayer player2 = new Player();
+        player2.setName("Bob");
+        player2.setId(UUID.randomUUID());
 
         // Act
-        game.start("Kuechengeraet", gameId);
+        game.start("Kuechengeraet");
 
-        playerManager.addPlayer(player1Id, player1Name);
-        playerManager.addPlayer(player2Id, player2Name);
+        playerManager.addPlayer(player1);
+        playerManager.addPlayer(player2);
 
-        boolean guess1 = game.guess('e', player1Id);
+        boolean guess1 = game.guess('e', player1);
 
         String maskedWord = game.getMaskedWord();
         List<Character> usedCharacter = game.getUsedCharacter();
 
-        boolean guess2 = game.guess('d', player1Id);
+        boolean guess2 = game.guess('d', player1);
 
         // Assert
         Assertions.assertTrue(guess1);
         Assertions.assertFalse(guess2);
-        Assertions.assertEquals(player2Id, playerManager.getActivePlayer().getId());
+        Assertions.assertEquals(player2, playerManager.getActivePlayer());
         Assertions.assertEquals(maskedWord, game.getMaskedWord());
         Assertions.assertIterableEquals(usedCharacter, game.getUsedCharacter());
     }
@@ -184,22 +182,22 @@ public class GameTest {
     void aGuessWhenNoPlayerIsAddedResultsInNoChange() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-
-        UUID player1Id = UUID.randomUUID();
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(UUID.randomUUID());
 
         // Act
-        game.start("Kuechengeraet", gameId);
+        game.start("Kuechengeraet");
 
         String maskedWord = game.getMaskedWord();
         List<Character> usedCharacter = game.getUsedCharacter();
 
-        boolean guess1 = game.guess('e', player1Id);
-        boolean guess2 = game.guess('d', player1Id);
+        boolean guess1 = game.guess('e', player1);
+        boolean guess2 = game.guess('d', player1);
 
         // Assert
         Assertions.assertFalse(guess1);
@@ -213,22 +211,23 @@ public class GameTest {
     void aPlayerIsCorrectRemovedFormTheGame() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-        UUID player1Id = UUID.randomUUID();
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(UUID.randomUUID());
 
         // Act
-        game.start("Kuechengeraet", gameId);
+        game.start("Kuechengeraet");
 
-        playerManager.addPlayer(player1Id, "Anna");
+        playerManager.addPlayer(player1);
         IPlayer tempActivePlayer = playerManager.getActivePlayer();
-        playerManager.removePlayer(player1Id);
+        playerManager.removePlayer(player1);
 
         // Assert
-        Assertions.assertEquals(player1Id, tempActivePlayer.getId());
+        Assertions.assertEquals(player1, tempActivePlayer);
         Assertions.assertNull(playerManager.getActivePlayer());
     }
 
@@ -236,30 +235,30 @@ public class GameTest {
     void whenAllCharactersAreGuessedTheGamesIsFinished() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-
-        UUID player1Id = UUID.randomUUID();
-        String player1Name = "Anna";
-        UUID player2Id = UUID.randomUUID();
-        String player2Name = "Bob";
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(UUID.randomUUID());
+        IPlayer player2 = new Player();
+        player2.setName("Bob");
+        player2.setId(UUID.randomUUID());
 
         String word = "aaaa";
 
         // Act
-        game.start(word, gameId);
+        game.start(word);
 
-        playerManager.addPlayer(player1Id, player1Name);
-        playerManager.addPlayer(player2Id, player2Name);
+        playerManager.addPlayer(player1);
+        playerManager.addPlayer(player2);
 
-        boolean guess1 = game.guess('a', player1Id);
+        boolean guess1 = game.guess('a', player1);
 
         String foundWord = game.getMaskedWord();
 
-        boolean guess2 = game.guess('f', player1Id);
+        boolean guess2 = game.guess('f', player1);
 
         // Assert
         Assertions.assertTrue(game.isFinished());
@@ -275,21 +274,21 @@ public class GameTest {
     void aDirectChangeOnTheUsedCharacterListHasNoEffectOnInternList() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-        UUID player1Id = UUID.randomUUID();
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
 
         // Act
-        game.start("Kuechengeraet", gameId);
-        playerManager.addPlayer(player1Id, "Anna");
+        game.start("Kuechengeraet");
+        playerManager.addPlayer(player1);
 
-        game.guess('a', player1Id);
-        game.guess('e', player1Id);
-        game.guess('f', player1Id);
-        game.guess('d', player1Id);
+        game.guess('a', player1);
+        game.guess('e', player1);
+        game.guess('f', player1);
+        game.guess('d', player1);
 
         var list = game.getUsedCharacter();
         list.add('b');
@@ -306,22 +305,24 @@ public class GameTest {
     void everyCharacterIsOnlyTrackedOnce() {
 
         // Arrange
-        Game originalGame = new Game(provider);
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
         UUID gameId = UUID.randomUUID();
-        UUID player1Id = UUID.randomUUID();
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(UUID.randomUUID());
 
         // Act
-        game.start("Kuechengeraet", gameId);
-        playerManager.addPlayer(player1Id, "Anna");
+        game.start("Kuechengeraet");
+        playerManager.addPlayer(player1);
 
-        game.guess('a', player1Id);
-        game.guess('e', player1Id);
-        game.guess('a', player1Id);
-        game.guess('z', player1Id);
-        game.guess('e', player1Id);
+        game.guess('a', player1);
+        game.guess('e', player1);
+        game.guess('a', player1);
+        game.guess('z', player1);
+        game.guess('e', player1);
 
         // Assert
         Assertions.assertEquals(3, game.getUsedCharacter().size());

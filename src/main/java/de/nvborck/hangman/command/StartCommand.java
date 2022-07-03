@@ -2,8 +2,6 @@ package de.nvborck.hangman.command;
 
 import de.nvborck.hangman.data.game.GameEvent;
 import de.nvborck.hangman.data.game.IGame;
-import de.nvborck.hangman.data.player.IPlayer;
-import de.nvborck.hangman.data.player.Player;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.utils.ASAPSerialization;
 
@@ -13,32 +11,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-public class GuessCommand implements ICommand<IGame>, ISerializableCommand {
+public class StartCommand implements ICommand<IGame>, ISerializableCommand {
     private IGame game;
-    private char character;
-    private IPlayer player;
+    private String word;
 
     private byte[] serializedMessage;
 
-    public GuessCommand(IGame game, char character, IPlayer player) throws IOException {
+    public StartCommand(IGame game, String word) throws IOException {
 
         this.game = game;
-        this.character = character;
-        this.player = player;
-
+        this.word = word;
         this.serialize();
     }
 
-    public GuessCommand(byte[] serializedMessage) throws IOException, ASAPException {
+    public StartCommand(byte[] serializedMessage) throws IOException, ASAPException {
         this.serializedMessage = serializedMessage;
-        this.player = new Player();
-
         this.deserialize();
     }
 
     @Override
     public void execute() {
-        this.game.guess(character, player);
+        this.game.start(this.word);
     }
 
     @Override
@@ -48,7 +41,7 @@ public class GuessCommand implements ICommand<IGame>, ISerializableCommand {
 
     @Override
     public CommandType getCorrelatedType() {
-        return CommandType.guess;
+        return CommandType.start;
     }
 
     @Override
@@ -66,20 +59,17 @@ public class GuessCommand implements ICommand<IGame>, ISerializableCommand {
     @Override
     public byte[] getSerializedMessage() { return this.serializedMessage;}
 
+
     private void serialize() throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASAPSerialization.writeCharSequenceParameter(Character.toString(this.character), baos);
-        ASAPSerialization.writeCharSequenceParameter(this.player.getName(), baos);
-        ASAPSerialization.writeCharSequenceParameter(this.player.getId().toString(), baos);
+        ASAPSerialization.writeCharSequenceParameter(this.word, baos);
         this.serializedMessage = baos.toByteArray();
     }
 
     private void deserialize() throws IOException, ASAPException {
 
         InputStream is = new ByteArrayInputStream(this.serializedMessage);
-        this.character = ASAPSerialization.readCharSequenceParameter(is).charAt(0);
-        this.player.setName(ASAPSerialization.readCharSequenceParameter(is));
-        this.player.setId(UUID.fromString(ASAPSerialization.readCharSequenceParameter(is)));
+        this.word = ASAPSerialization.readCharSequenceParameter(is);
     }
 }

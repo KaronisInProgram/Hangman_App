@@ -1,15 +1,15 @@
 package de.nvborck.hangman.command;
 
-import de.nvborck.hangman.app.GameEvents;
-import de.nvborck.hangman.data.game.IGame;
+import de.nvborck.hangman.data.game.GameEvent;
 
 public interface ICommand<T> {
 
     void execute();
 
-    void setCoreObjectIfNull(T game);
+    void setCoreObjectIfNull(T core);
 
-    GameEvents getCorrelatedEvent();
+    GameEvent getCorrelatedEvent();
+    CommandType getCorrelatedType();
 
     ISerializableCommand asSerializableCommand();
 }

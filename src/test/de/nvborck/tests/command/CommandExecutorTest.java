@@ -7,6 +7,8 @@ import de.nvborck.hangman.command.ICommandExecutor;
 import de.nvborck.hangman.data.game.Game;
 import de.nvborck.hangman.data.game.IGame;
 import de.nvborck.hangman.data.game.IPlayerManager;
+import de.nvborck.hangman.data.player.IPlayer;
+import de.nvborck.hangman.data.player.Player;
 import de.nvborck.hangman.data.wordprovider.SimpleWordProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,19 +22,19 @@ public class CommandExecutorTest {
     void executionEffectsTargetObject() throws IOException {
 
         // Arrange
-        Game originalGame = new Game(new SimpleWordProvider());
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-        UUID playerId = UUID.randomUUID();
-        String playerName = "Anna";
+        IPlayer player = new Player();
+        player.setName("Anna");
+        player.setId(UUID.randomUUID());
 
-        playerManager.addPlayer(playerId, playerName);
-        game.start("Kuechengeraet", gameId);
+        playerManager.addPlayer(player);
+        game.start("Kuechengeraet");
 
         ICommandExecutor executor = new CommandExecutor();
-        ICommand command = new GuessCommand(game, 'e', playerId);
+        ICommand command = new GuessCommand(game, 'e', player);
 
         // Act
         executor.executeCommand(command);
@@ -45,15 +47,15 @@ public class CommandExecutorTest {
     }
 
     @Test
-    void ifNoCommandIsProvidedTheExecutorThrowsAnError() throws IOException {
+    void ifNoCommandIsProvidedTheExecutorThrowsAnError() {
 
         // Arrange
         ICommandExecutor executor = new CommandExecutor();
 
         // Act
-        var execption = Assertions.assertThrows(IllegalArgumentException.class, () -> executor.executeCommand(null));
+        var exception = Assertions.assertThrows(IllegalArgumentException.class, () -> executor.executeCommand(null));
 
         // Assert
-        Assertions.assertEquals("The command can't be null!", execption.getMessage());
+        Assertions.assertEquals("The command can't be null!", exception.getMessage());
     }
 }

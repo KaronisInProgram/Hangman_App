@@ -1,9 +1,12 @@
 package de.nvborck.tests.command;
 
+import de.nvborck.hangman.data.game.GameEvent;
 import de.nvborck.hangman.command.*;
 import de.nvborck.hangman.data.game.Game;
 import de.nvborck.hangman.data.game.IGame;
 import de.nvborck.hangman.data.game.IPlayerManager;
+import de.nvborck.hangman.data.player.IPlayer;
+import de.nvborck.hangman.data.player.Player;
 import de.nvborck.hangman.data.wordprovider.SimpleWordProvider;
 import net.sharksystem.asap.ASAPException;
 import org.junit.jupiter.api.Assertions;
@@ -18,18 +21,18 @@ public class GuessCommandTest {
     void executionSetsAGuessInTheGame() throws IOException {
 
         // Arrange
-        Game originalGame = new Game(new SimpleWordProvider());
+        Game originalGame = new Game();
         IGame game = originalGame;
         IPlayerManager playerManager = originalGame;
 
-        UUID gameId = UUID.randomUUID();
-        UUID playerId = UUID.randomUUID();
-        String playerName = "Anna";
+        IPlayer player = new Player();
+        player.setName("Anna");
+        player.setId(UUID.randomUUID());
 
-        playerManager.addPlayer(playerId, playerName);
-        game.start("Kuechengeraet", gameId);
+        playerManager.addPlayer(player);
+        game.start("Kuechengeraet");
 
-        ICommand command = new GuessCommand(game, 'e', playerId);
+        ICommand command = new GuessCommand(game, 'e', player);
 
         // Act
         command.execute();
@@ -45,24 +48,25 @@ public class GuessCommandTest {
     void aDeserializedCommandHasTheSameEffectAsTheOriginal() throws IOException, ASAPException {
 
         // Arrange
-        Game originalGame1 = new Game(new SimpleWordProvider());
+        Game originalGame1 = new Game();
         IGame game1 = originalGame1;
         IPlayerManager playerManager1 = originalGame1;
 
-        UUID playerId = UUID.randomUUID();
-        String playerName = "Anna";
+        IPlayer player = new Player();
+        player.setName("Anna");
+        player.setId(UUID.randomUUID());
 
-        playerManager1.addPlayer(playerId, playerName);
-        game1.start("Kuechengeraet", UUID.randomUUID());
+        playerManager1.addPlayer(player);
+        game1.start("Kuechengeraet");
 
-        Game originalGame2 = new Game(new SimpleWordProvider());
+        Game originalGame2 = new Game();
         IGame game2 = originalGame2;
         IPlayerManager playerManager2 = originalGame2;
 
-        playerManager2.addPlayer(playerId, playerName);
-        game2.start("Kuechengeraet", UUID.randomUUID());
+        playerManager2.addPlayer(player);
+        game2.start("Kuechengeraet");
 
-        GuessCommand command = new GuessCommand(game1, 'e', playerId);
+        GuessCommand command = new GuessCommand(game1, 'e', player);
 
         // Act
         byte[] serializedCommand = command.asSerializableCommand().getSerializedMessage();
@@ -86,5 +90,24 @@ public class GuessCommandTest {
         Assertions.assertEquals(1, game2.getUsedCharacter().size());
         Assertions.assertTrue(game2.getUsedCharacter().contains('e'));
         Assertions.assertFalse(game2.isFinished());
+    }
+
+    @Test
+    void theCorrelatedEventIsWordChanged() throws IOException {
+
+        // Arrange
+        IGame game = new Game();
+        game.start("Abcdefg");
+
+        IPlayer player = new Player();
+        player.setName("Anna");
+        player.setId(UUID.randomUUID());
+
+        GuessCommand command = new GuessCommand(game, 'e', player);
+
+        // Act
+
+        // Assert
+        Assertions.assertEquals(GameEvent.searchedWordChange, command.getCorrelatedEvent());
     }
 }

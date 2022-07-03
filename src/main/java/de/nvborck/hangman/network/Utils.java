@@ -5,6 +5,9 @@ import java.util.Map;
 
 public class Utils {
 
+    public static final String extra_request = "request";
+    public static final String extra_answer = "answer";
+
     public static final String option = "option";
     public static final String id = "id";
     public static final String extra = "extra";
@@ -25,5 +28,13 @@ public class Utils {
         }
 
         return result;
+    }
+
+    public static void log(String msg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(">>>>>>>>>>>>>> YOUR APPLICATION | YOUR APPLICATION | YOUR APPLICATION <<<<<<<<<<<<<<<<<<<<<\n");
+        sb.append(msg);
+        sb.append("\n>>>>>>>>>>>>>> YOUR APPLICATION | YOUR APPLICATION | YOUR APPLICATION <<<<<<<<<<<<<<<<<<<<<\n");
+        System.out.println(sb);
     }
 }

@@ -1,9 +1,9 @@
 package de.nvborck.hangman.app;
 
-
-import de.nvborck.hangman.data.game.IGame;
 import de.nvborck.hangman.command.ICommand;
 import de.nvborck.hangman.data.player.IPlayer;
+import de.nvborck.hangman.network.messages.OpenGame;
+import de.nvborck.hangman.network.messages.SynchronizeGame;
 import net.sharksystem.asap.ASAPException;
 
 import java.io.IOException;
@@ -14,11 +14,9 @@ public interface IGameHandler {
 
     void initializeGame(IPlayer player) throws IOException, ASAPException;
 
-    void joinGame(UUID gameid, IPlayer player);
+    void joinGame(UUID gameid, IPlayer player) throws IOException, ASAPException;
 
     void searchGames() throws IOException, ASAPException;
-
-    void stoppSearching();
 
     boolean hasActiveGame();
 
@@ -30,13 +28,20 @@ public interface IGameHandler {
 
     void guess(char character, IPlayer player) throws IOException, ASAPException;
 
-    List<IGame> getOpenGames();
+    List<OpenGame> getOpenGames();
 
-    void addOpenGame(IGame game);
+    void addOpenGame(OpenGame game);
 
     UUID getGameId();
 
     /**
      */
     String getSearchedWord();
+
+
+    void synchronizeGame(SynchronizeGame synchronizeGame);
+
+    List<ICommand> getCommands();
+
+    void handleCommandWithoutSharing(ICommand command) throws IOException, ASAPException;
 }

@@ -75,4 +75,45 @@ public class PlayerTest {
         verify(mockedRead).read(player);
         verify(mockedWrite).write(player);
     }
+
+    @Test
+    void theyAreEqualsWhenIdIsTheSame() {
+
+        // Arrange
+        UUID id = UUID.randomUUID();
+
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(id);
+
+        IPlayer player2 = new Player();
+        player2.setName("Bob");
+        player2.setId(id);
+
+        // Act
+
+        // Assert
+        Assertions.assertEquals(player1, player2);
+    }
+
+    @Test
+    void theyHaveTheSameHashcodeAsThereId() {
+
+        // Arrange
+        UUID id = UUID.randomUUID();
+
+        IPlayer player1 = new Player();
+        player1.setName("Anna");
+        player1.setId(id);
+        IPlayer player2 = new Player();
+        player2.setName("Bob");
+        player2.setId(id);
+
+        // Act
+
+        // Assert
+        Assertions.assertEquals(player1.hashCode(), id.hashCode());
+        Assertions.assertEquals(player2.hashCode(), id.hashCode());
+        Assertions.assertEquals(player1.hashCode(), player2.hashCode());
+    }
 }

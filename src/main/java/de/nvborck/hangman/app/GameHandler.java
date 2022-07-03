@@ -2,12 +2,15 @@ package de.nvborck.hangman.app;
 
 import de.nvborck.hangman.command.*;
 import de.nvborck.hangman.data.game.Game;
-import de.nvborck.hangman.data.game.IGame;
+import de.nvborck.hangman.data.game.GameEvent;
 import de.nvborck.hangman.data.player.IPlayer;
 import de.nvborck.hangman.data.wordprovider.IWordProvider;
 import de.nvborck.hangman.network.GameAPI;
 import de.nvborck.hangman.network.IGameAPI;
 
+import de.nvborck.hangman.network.messages.GameCommand;
+import de.nvborck.hangman.network.messages.OpenGame;
+import de.nvborck.hangman.network.messages.SynchronizeGame;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
 import org.javatuples.Pair;
@@ -20,48 +23,54 @@ import java.util.UUID;
 public class GameHandler implements IGameHandler, IGameNotifier {
 
     private Game game;
+    private ICommandExecutor executor = new CommandExecutor();
     private boolean activeGame = false;
+    private boolean activeGameSynchronized = false;
+    private IWordProvider provider;
+    private UUID gameId = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-    private final ICommandExecutor executor;
+    private JoinAfterSynchronize afterSynchronize;
+
     private final IGameAPI api;
-    private final IWordProvider provider;
+    private final List<Pair<GameEvent, IGameListener>> listeners = new ArrayList<>();
 
-    private final List<Pair<GameEvents, IGameListener>> listeners = new ArrayList<>();
-
-    private List<IGame> openGames = new ArrayList<>();
+    private List<OpenGame> openGames = new ArrayList<>();
 
     public GameHandler(ASAPPeer peer, IWordProvider wordProvider) {
-        this.provider = wordProvider;
 
+        this.provider = wordProvider;
         this.api = new GameAPI(this, peer);
-        this.executor = new CommandExecutor();
     }
 
     @Override
     public void initializeGame(IPlayer player) throws IOException, ASAPException {
-        this.game = new Game(this.provider);
-        this.game.start();
+        this.executor = new CommandExecutor();
+        this.game = new Game();
+        this.gameId = UUID.randomUUID();
 
-        this.handleCommand(new JoinCommand(this.game, player.getId(), player.getName()));
+        this.handleCommand(new StartCommand(this.game, this.provider.getRandomWord()));
+        this.handleCommand(new JoinCommand(this.game, player));
 
-        activeGame = true;
+        this.activeGame = true;
+        this.activeGameSynchronized = true;
     }
 
     @Override
-    public void joinGame(UUID gameid, IPlayer player) {
-        this.game = new Game(null);
-        this.game.start("", gameid);
+    public void joinGame(UUID gameid, IPlayer player) throws IOException, ASAPException {
+
+        if(this.gameId.equals(gameid)) {
+            this.handleCommand(new JoinCommand(this.game, player));
+        } else {
+            this.api.synchronizeGame(gameid);
+            this.afterSynchronize = new JoinAfterSynchronize(this, player);
+            this.addGameListener(GameEvent.gameSynchronized, afterSynchronize);
+        }
     }
 
     @Override
     public void searchGames() throws IOException, ASAPException {
         this.openGames.clear();
         this.api.searchGames();
-    }
-
-    @Override
-    public void stoppSearching() {
-
     }
 
     @Override
@@ -86,23 +95,23 @@ public class GameHandler implements IGameHandler, IGameNotifier {
 
     @Override
     public void guess(char character, IPlayer player) throws IOException, ASAPException {
-        ICommand guess = new GuessCommand(this.game, character, player.getId());
+        ICommand guess = new GuessCommand(this.game, character, player);
         this.handleCommand(guess);
     }
 
     @Override
-    public List<IGame> getOpenGames() {
+    public List<OpenGame> getOpenGames() {
         return new ArrayList<>(this.openGames);
     }
 
     @Override
-    public void addOpenGame(IGame game) {
+    public void addOpenGame(OpenGame game) {
         this.openGames.add(game);
     }
 
     @Override
     public UUID getGameId() {
-        return this.game.getId();
+        return this.gameId;
     }
 
     @Override
@@ -110,38 +119,75 @@ public class GameHandler implements IGameHandler, IGameNotifier {
         return this.game.getSearchedWord();
     }
 
+    @Override
+    public void synchronizeGame(SynchronizeGame synchronizeGame) {
+
+        this.gameId = synchronizeGame.getId();
+
+        this.game = new Game();
+        for (GameCommand gameCommand: synchronizeGame.getCommands()) {
+            ICommand command = gameCommand.getCommand();
+            command.setCoreObjectIfNull(this.game);
+            this.executor.executeCommand(command);
+        }
+
+        this.activeGame = true;
+        this.activeGameSynchronized = true;
+
+        this.notifyAllListenerOfEvent(GameEvent.gameSynchronized);
+
+        if(this.afterSynchronize != null) {
+            this.removeGameListener(this.afterSynchronize);
+            this.afterSynchronize = null;
+        }
+    }
+
+    @Override
+    public List<ICommand> getCommands() {
+        return this.executor.getCommands();
+    }
+
     private void handleCommand(ICommand command) throws IOException, ASAPException {
+
+        this.handleCommandWithoutSharing(command);
+        this.api.sendCommand(command, this.gameId);
+    }
+
+    @Override
+    public void handleCommandWithoutSharing(ICommand command) {
 
         command.setCoreObjectIfNull(this.game);
         this.executor.executeCommand(command);
-        this.api.sendCommand(command, game.getId());
 
         if(this.game.isFinished()) {
             this.activeGame = false;
         }
 
-        // Notify all registered Listener
-        this.listeners.forEach((pair) -> {
-            GameEvents event = pair.getValue0();
-            IGameListener listener = pair.getValue1();
-
-            if(event == command.getCorrelatedEvent()) {
-                listener.getNotified();
-            }
-        });
-    }
-
-    private void handleExternalCommand(ICommand command) {
-        this.executor.executeCommand(command);
+        notifyAllListenerOfEvent(command.getCorrelatedEvent());
     }
 
     @Override
-    public void addGameListener(GameEvents event, IGameListener listener) {
+    public void addGameListener(GameEvent event, IGameListener listener) {
         this.listeners.add(new Pair<>(event, listener));
     }
 
     @Override
     public void removeGameListener(IGameListener listener) {
         this.listeners.removeIf((pair) -> pair.getValue1() == listener);
+    }
+
+    private void notifyAllListenerOfEvent(GameEvent sourceEvent) {
+        this.listeners.forEach((pair) -> {
+            GameEvent event = pair.getValue0();
+            IGameListener listener = pair.getValue1();
+
+            if(event == sourceEvent) {
+                try {
+                    listener.getNotified();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 }

@@ -12,5 +12,5 @@ public interface IGameAPI {
 
     void sendCommand(ICommand command, UUID gameid) throws IOException, ASAPException;
     void searchGames() throws IOException, ASAPException;
-    void joinGame(UUID gameid);
+    void synchronizeGame(UUID gameid) throws ASAPException, IOException;
 }

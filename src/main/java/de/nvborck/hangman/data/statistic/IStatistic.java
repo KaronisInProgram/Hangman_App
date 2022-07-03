@@ -5,7 +5,7 @@ import de.nvborck.hangman.data.IConfigurableOperations;
 public interface IStatistic {
 
     /**
-     * Increases the Statistic record of the data.player by 1 for the category "Guessed Words".
+     * Increases the Statistic record of the data.playerChange by 1 for the category "Guessed Words".
      */
     void increaseGuessedWords();
 

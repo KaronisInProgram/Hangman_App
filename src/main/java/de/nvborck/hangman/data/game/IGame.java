@@ -1,5 +1,7 @@
 package de.nvborck.hangman.data.game;
 
+import de.nvborck.hangman.data.player.IPlayer;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -12,13 +14,7 @@ public interface IGame {
      * Starts a new Round of GameHandler.
      * If It's called in an ongoing Round, this Round will be reset and be started with another Word.
      */
-    void start();
-
-    /**
-     * Starts a new Round of GameHandler.
-     * If It's called in an ongoing Round, this Round will be reset and be started with another Word.
-     */
-    void start(String word, UUID id);
+    void start(String word);
 
     /**
      * Lets the active Player does a guess on the data.game.
@@ -26,7 +22,7 @@ public interface IGame {
      *<p>
      * If the Character is not between [a-z] this Method should throw an IllegalArgumentException.
      */
-    boolean guess(char character, UUID player) throws IllegalArgumentException, IllegalStateException;
+    boolean guess(char character, IPlayer player) throws IllegalArgumentException, IllegalStateException;
 
     /**
      * Returns the searched Word in its masked Form.
@@ -48,10 +44,4 @@ public interface IGame {
      * Returns all the Player guessed (used) Character in this Play-through.
      */
     List<Character> getUsedCharacter();
-
-    /**
-     * Returns all the Player guessed (used) Character in this Play-through.
-     */
-    UUID getId();
-
 }

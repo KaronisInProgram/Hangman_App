@@ -11,39 +11,24 @@ import java.util.UUID;
 
 public class Game implements IGame, IPlayerManager{
 
-    private final IWordProvider wordProvider;
-
-    private final List<Pair<UUID, String>> players = new LinkedList<>();
-    private Pair<UUID, String> activePlayer;
+    private final List<IPlayer> players = new LinkedList<>();
+    private IPlayer activePlayer;
 
     private final List<Character> usedCharacters = new LinkedList<>();
     private String searchedWord = "";
     private String maskedWord = "";
 
-    private UUID id = UUID.randomUUID();
-
-    public Game(IWordProvider wordProvider) {
-        this.wordProvider = wordProvider;
-    }
-
     @Override
-    public void start() {
-        this.searchedWord = this.wordProvider.getRandomWord();
-        this.maskedWord = "_".repeat(searchedWord.length());
-    }
-
-    @Override
-    public void start(String word, UUID id) {
-        this.id = id;
+    public void start(String word) {
         this.searchedWord = word;
         this.maskedWord = "_".repeat(searchedWord.length());
     }
 
     @Override
-    public boolean guess(char character, UUID player) {
+    public boolean guess(char character, IPlayer player) {
 
         // Check if the requirements are meet
-        if(!this.isFinished() && this.activePlayer == null || this.activePlayer.getValue0().compareTo(player) != 0) {
+        if(!this.isFinished() && this.activePlayer == null || !this.activePlayer.equals(player)) {
             return false;
         }
 
@@ -88,44 +73,25 @@ public class Game implements IGame, IPlayerManager{
     }
 
     @Override
-    public UUID getId() {
-        return this.id;
-    }
+    public void addPlayer(IPlayer player) {
 
-    @Override
-    public void addPlayer(UUID id, String name) {
-        Pair<UUID, String> playerTuple = new Pair<>(id, name);
-
-        this.players.add(playerTuple);
+        this.players.add(player);
         if(this.activePlayer == null) {
-            this.activePlayer = playerTuple;
+            this.activePlayer = player;
         }
     }
 
     @Override
     public IPlayer getActivePlayer() {
-        if(this.activePlayer != null) {
-            IPlayer player = new Player();
 
-            player.setId(this.activePlayer.getValue0());
-            player.setName(this.activePlayer.getValue1());
-
-            return player;
-        }
-
-        return null;
+        return this.activePlayer != null ? this.activePlayer : null;
     }
 
     @Override
-    public void removePlayer(UUID player) {
+    public void removePlayer(IPlayer player) {
 
-        for (var pair : this.players) {
-            if(pair.getValue0() == player) {
-                this.players.remove(pair);
-                setNewActivePlayer();
-                break;
-            }
-        }
+        this.players.remove(player);
+        setNewActivePlayer();
     }
 
     private boolean isValidGuess(Character character) {
@@ -166,4 +132,5 @@ public class Game implements IGame, IPlayerManager{
             this.activePlayer = null;
         }
     }
+
 }
