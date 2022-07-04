@@ -1,6 +1,7 @@
 package de.nvborck.hangman.network;
 
 import de.nvborck.hangman.app.IGameHandler;
+import de.nvborck.hangman.command.ICommand;
 import de.nvborck.hangman.network.messages.GameCommand;
 import de.nvborck.hangman.network.messages.OpenGame;
 import jdk.jshell.execution.Util;
@@ -41,14 +42,27 @@ public class CommandReceiver implements ASAPMessageReceivedListener {
             return;
         }
 
-        // When Id equals to local peer then it's an answer ...
+        // When Id equals to local Game then it's an answer ...
         String id = splits.getOrDefault(Utils.id, "");
         if(id.equals(this.handler.getGameId().toString())) {
-            try {
 
+            try {
                 Iterator<byte[]> msgIter = asapMessages.getMessages();
                 while(msgIter.hasNext()) {
                     GameCommand message = new GameCommand(msgIter.next());
+
+                    boolean allreadyProcessed = false;
+                        for (ICommand command: this.handler.getCommands()) {
+                            if(command.getUniqeId().compareTo(message.getCommand().getUniqeId()) == 0) {
+                                allreadyProcessed = true;
+                                break;
+                            }
+                        }
+
+                        if(allreadyProcessed) {
+                            continue;
+                        }
+
                     this.handler.handleCommandWithoutSharing(message.getCommand());
                 }
             } catch (ASAPException e) {

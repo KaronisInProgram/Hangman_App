@@ -14,6 +14,7 @@ import java.util.UUID;
 public class StartCommand implements ICommand<IGame>, ISerializableCommand {
     private IGame game;
     private String word;
+    private UUID id = UUID.randomUUID();
 
     private byte[] serializedMessage;
 
@@ -57,12 +58,18 @@ public class StartCommand implements ICommand<IGame>, ISerializableCommand {
     }
 
     @Override
+    public UUID getUniqeId() {
+        return this.id;
+    }
+
+    @Override
     public byte[] getSerializedMessage() { return this.serializedMessage;}
 
 
     private void serialize() throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceParameter(this.id.toString(), baos);
         ASAPSerialization.writeCharSequenceParameter(this.word, baos);
         this.serializedMessage = baos.toByteArray();
     }
@@ -70,6 +77,7 @@ public class StartCommand implements ICommand<IGame>, ISerializableCommand {
     private void deserialize() throws IOException, ASAPException {
 
         InputStream is = new ByteArrayInputStream(this.serializedMessage);
+        this.id = UUID.fromString(ASAPSerialization.readCharSequenceParameter(is));
         this.word = ASAPSerialization.readCharSequenceParameter(is);
     }
 }

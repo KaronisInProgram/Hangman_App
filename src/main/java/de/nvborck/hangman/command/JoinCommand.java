@@ -17,6 +17,7 @@ public class JoinCommand implements ICommand<IPlayerManager>, ISerializableComma
 
     private IPlayerManager playerManager;
     private IPlayer player;
+    private UUID id = UUID.randomUUID();
 
     private byte[] serializedMessage;
 
@@ -38,6 +39,7 @@ public class JoinCommand implements ICommand<IPlayerManager>, ISerializableComma
     private void serialize() throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceParameter(this.id.toString(), baos);
         ASAPSerialization.writeCharSequenceParameter(this.player.getId().toString(), baos);
         ASAPSerialization.writeCharSequenceParameter(this.player.getName(), baos);
         this.serializedMessage = baos.toByteArray();
@@ -46,6 +48,7 @@ public class JoinCommand implements ICommand<IPlayerManager>, ISerializableComma
     private void deserialize() throws IOException, ASAPException {
 
         InputStream is = new ByteArrayInputStream(this.serializedMessage);
+        this.id = UUID.fromString(ASAPSerialization.readCharSequenceParameter(is));
         this.player.setId(UUID.fromString(ASAPSerialization.readCharSequenceParameter(is)));
         this.player.setName(ASAPSerialization.readCharSequenceParameter(is));
     }
@@ -60,6 +63,11 @@ public class JoinCommand implements ICommand<IPlayerManager>, ISerializableComma
         if(this.playerManager == null) {
             this.playerManager = playerManager;
         }
+    }
+
+    @Override
+    public UUID getUniqeId() {
+        return this.id;
     }
 
     @Override

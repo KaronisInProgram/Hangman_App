@@ -7,7 +7,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../ASAP_Example/src/main/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../ASAP_Example/src/main/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test (integration)" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test (unit)" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/testPeerFS" />
       <excludeFolder url="file://$MODULE_DIR$/report" />
     </content>

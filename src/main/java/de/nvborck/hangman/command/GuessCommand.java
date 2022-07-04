@@ -17,6 +17,7 @@ public class GuessCommand implements ICommand<IGame>, ISerializableCommand {
     private IGame game;
     private char character;
     private IPlayer player;
+    private UUID id = UUID.randomUUID();
 
     private byte[] serializedMessage;
 
@@ -64,11 +65,17 @@ public class GuessCommand implements ICommand<IGame>, ISerializableCommand {
     }
 
     @Override
+    public UUID getUniqeId() {
+        return this.id;
+    }
+
+    @Override
     public byte[] getSerializedMessage() { return this.serializedMessage;}
 
     private void serialize() throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceParameter(this.id.toString(), baos);
         ASAPSerialization.writeCharSequenceParameter(Character.toString(this.character), baos);
         ASAPSerialization.writeCharSequenceParameter(this.player.getName(), baos);
         ASAPSerialization.writeCharSequenceParameter(this.player.getId().toString(), baos);
@@ -78,6 +85,7 @@ public class GuessCommand implements ICommand<IGame>, ISerializableCommand {
     private void deserialize() throws IOException, ASAPException {
 
         InputStream is = new ByteArrayInputStream(this.serializedMessage);
+        this.id = UUID.fromString(ASAPSerialization.readCharSequenceParameter(is));
         this.character = ASAPSerialization.readCharSequenceParameter(is).charAt(0);
         this.player.setName(ASAPSerialization.readCharSequenceParameter(is));
         this.player.setId(UUID.fromString(ASAPSerialization.readCharSequenceParameter(is)));

@@ -1,4 +1,4 @@
-package de.nvborck.tests.data.game;
+package de.nvborck.tests.unit.data.game;
 
 import de.nvborck.hangman.data.game.*;
 import de.nvborck.hangman.data.player.IPlayer;

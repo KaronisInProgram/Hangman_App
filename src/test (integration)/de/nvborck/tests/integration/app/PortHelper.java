@@ -1,4 +1,4 @@
-package de.nvborck.tests.app;
+package de.nvborck.tests.integration.app;
 
 public class PortHelper {
 

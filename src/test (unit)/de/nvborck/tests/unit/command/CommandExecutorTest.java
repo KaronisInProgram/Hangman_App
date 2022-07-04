@@ -1,4 +1,4 @@
-package de.nvborck.tests.command;
+package de.nvborck.tests.unit.command;
 
 import de.nvborck.hangman.command.CommandExecutor;
 import de.nvborck.hangman.command.GuessCommand;
