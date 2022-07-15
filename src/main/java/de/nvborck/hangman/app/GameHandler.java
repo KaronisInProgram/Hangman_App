@@ -26,7 +26,7 @@ public class GameHandler implements IGameHandler, IGameNotifier {
     private ICommandExecutor executor = new CommandExecutor();
     private boolean activeGame = false;
     private boolean activeGameSynchronized = false;
-    private IWordProvider provider;
+    private final IWordProvider provider;
     private UUID gameId = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     private JoinAfterSynchronize afterSynchronize;
@@ -34,12 +34,12 @@ public class GameHandler implements IGameHandler, IGameNotifier {
     private final IGameAPI api;
     private final List<Pair<GameEvent, IGameListener>> listeners = new ArrayList<>();
 
-    private List<OpenGame> openGames = new ArrayList<>();
+    private final List<OpenGame> openGames = new ArrayList<>();
 
-    public GameHandler(ASAPPeer peer, IWordProvider wordProvider) {
+    public GameHandler(ASAPPeer peer, IWordProvider wordProvider, UUID uniqeId) {
 
         this.provider = wordProvider;
-        this.api = new GameAPI(this, peer);
+        this.api = new GameAPI(this, peer, uniqeId);
     }
 
     @Override
@@ -107,6 +107,7 @@ public class GameHandler implements IGameHandler, IGameNotifier {
     @Override
     public void addOpenGame(OpenGame game) {
         this.openGames.add(game);
+        notifyAllListenerOfEvent(GameEvent.openGameFound);
     }
 
     @Override
@@ -122,6 +123,7 @@ public class GameHandler implements IGameHandler, IGameNotifier {
     @Override
     public void synchronizeGame(SynchronizeGame synchronizeGame) {
 
+        this.executor = new CommandExecutor();
         this.gameId = synchronizeGame.getId();
 
         this.game = new Game();

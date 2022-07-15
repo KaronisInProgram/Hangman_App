@@ -34,10 +34,7 @@ public interface IGameHandler {
 
     UUID getGameId();
 
-    /**
-     */
     String getSearchedWord();
-
 
     void synchronizeGame(SynchronizeGame synchronizeGame);
 

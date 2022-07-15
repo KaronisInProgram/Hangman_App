@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
+
 public class GameHandlerTest {
 
     static final CharSequence ALICE = "Alice";
@@ -31,8 +32,8 @@ public class GameHandlerTest {
         ASAPTestPeerFS alicePeer = new ASAPTestPeerFS(ALICE, formats);
         ASAPTestPeerFS bobPeer = new ASAPTestPeerFS(BOB, formats);
 
-        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider());
-        IGameHandler handlerBob = new GameHandler(bobPeer, new SimpleWordProvider());
+        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider(), UUID.randomUUID());
+        IGameHandler handlerBob = new GameHandler(bobPeer, new SimpleWordProvider(), UUID.randomUUID());
 
         IPlayer alicePlayer = new Player();
         alicePlayer.setName(ALICE.toString());
@@ -42,7 +43,7 @@ public class GameHandlerTest {
         // Arrange
         alicePeer.startEncounter(de.nvborck.tests.integration.app.PortHelper.getPort(), bobPeer);
         handlerBob.initializeGame(bobPlayer);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
         // Act
         handlerAlice.searchGames();
@@ -50,14 +51,14 @@ public class GameHandlerTest {
 
         OpenGame openGame = handlerAlice.getOpenGames().get(0);
         handlerAlice.joinGame(openGame.getId(), alicePlayer);
-        Thread.sleep(2000);
+        Thread.sleep(3000);
 
         handlerBob.guess('e', bobPlayer);
-        Thread.sleep(2000);
+        Thread.sleep(1000);
         handlerAlice.guess('a', alicePlayer);
-        Thread.sleep(2000);
+        Thread.sleep(1000);
         handlerBob.guess('d', bobPlayer);
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         // Assert
         Assertions.assertEquals(handlerBob.getActivePlayer(), handlerAlice.getActivePlayer());
@@ -75,9 +76,9 @@ public class GameHandlerTest {
         ASAPTestPeerFS bobPeer = new ASAPTestPeerFS(BOB, formats);
         ASAPTestPeerFS charliePeer = new ASAPTestPeerFS(CHARLIE, formats);
 
-        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider());
-        IGameHandler handlerBob = new GameHandler(bobPeer, new SimpleWordProvider());
-        IGameHandler handlerCharlie = new GameHandler(charliePeer, new SimpleWordProvider());
+        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider(), UUID.randomUUID());
+        IGameHandler handlerBob = new GameHandler(bobPeer, new SimpleWordProvider(), UUID.randomUUID());
+        IGameHandler handlerCharlie = new GameHandler(charliePeer, new SimpleWordProvider(), UUID.randomUUID());
 
         IPlayer alicePlayer = new Player();
         alicePlayer.setName(ALICE.toString());
@@ -110,8 +111,8 @@ public class GameHandlerTest {
         ASAPTestPeerFS alicePeer = new ASAPTestPeerFS(ALICE, formats);
         ASAPTestPeerFS bobPeer = new ASAPTestPeerFS(BOB, formats);
 
-        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider());
-        IGameHandler handlerBob = new GameHandler(bobPeer, new SimpleWordProvider());
+        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider(), UUID.randomUUID());
+        IGameHandler handlerBob = new GameHandler(bobPeer, new SimpleWordProvider(), UUID.randomUUID());
 
         IPlayer alicePlayer = new Player();
         alicePlayer.setName(ALICE.toString());

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import static de.nvborck.hangman.network.Utils.*;
 
@@ -16,12 +17,14 @@ public class SynchronizeReceiver implements ASAPMessageReceivedListener {
 
     public static final String option_synchronize = "synchronize";
 
-    private ASAPPeer peer;
-    private IGameHandler handler;
+    private final ASAPPeer peer;
+    private final IGameHandler handler;
+    private final UUID uniqeId;
 
-    public SynchronizeReceiver(ASAPPeer peer, IGameHandler handler) {
+    public SynchronizeReceiver(ASAPPeer peer, IGameHandler handler, UUID uniqeId) {
         this.peer = peer;
         this.handler = handler;
+        this.uniqeId = uniqeId;
     }
 
 

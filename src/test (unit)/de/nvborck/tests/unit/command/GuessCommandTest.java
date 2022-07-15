@@ -22,26 +22,24 @@ public class GuessCommandTest {
 
         // Arrange
         Game originalGame = new Game();
-        IGame game = originalGame;
-        IPlayerManager playerManager = originalGame;
 
         IPlayer player = new Player();
         player.setName("Anna");
         player.setId(UUID.randomUUID());
 
-        playerManager.addPlayer(player);
-        game.start("Kuechengeraet");
+        ((IPlayerManager) originalGame).addPlayer(player);
+        ((IGame) originalGame).start("Kuechengeraet");
 
-        ICommand command = new GuessCommand(game, 'e', player);
+        ICommand command = new GuessCommand(originalGame, 'e', player);
 
         // Act
         command.execute();
 
         // Assert
-        Assertions.assertEquals("__e__e__e__e_", game.getMaskedWord());
-        Assertions.assertEquals(1, game.getUsedCharacter().size());
-        Assertions.assertTrue(game.getUsedCharacter().contains('e'));
-        Assertions.assertFalse(game.isFinished());
+        Assertions.assertEquals("__e__e__e__e_", ((IGame) originalGame).getMaskedWord());
+        Assertions.assertEquals(1, ((IGame) originalGame).getUsedCharacter().size());
+        Assertions.assertTrue(((IGame) originalGame).getUsedCharacter().contains('e'));
+        Assertions.assertFalse(((IGame) originalGame).isFinished());
     }
 
     @Test
@@ -49,51 +47,45 @@ public class GuessCommandTest {
 
         // Arrange
         Game originalGame1 = new Game();
-        IGame game1 = originalGame1;
-        IPlayerManager playerManager1 = originalGame1;
 
         IPlayer player = new Player();
         player.setName("Anna");
         player.setId(UUID.randomUUID());
 
-        playerManager1.addPlayer(player);
-        game1.start("Kuechengeraet");
+        ((IPlayerManager) originalGame1).addPlayer(player);
+        ((IGame) originalGame1).start("Kuechengeraet");
 
         Game originalGame2 = new Game();
-        IGame game2 = originalGame2;
-        IPlayerManager playerManager2 = originalGame2;
 
-        playerManager2.addPlayer(player);
-        game2.start("Kuechengeraet");
+        ((IPlayerManager) originalGame2).addPlayer(player);
+        ((IGame) originalGame2).start("Kuechengeraet");
 
-        GuessCommand command = new GuessCommand(game1, 'e', player);
+        GuessCommand command = new GuessCommand(originalGame1, 'e', player);
 
         // Act
         byte[] serializedCommand = command.asSerializableCommand().getSerializedMessage();
         GuessCommand deserializedCommand = new GuessCommand(serializedCommand);
 
-        ICommand settableGame1 = command;
-        settableGame1.setCoreObjectIfNull(game2);
-        ICommand settableGame2 = deserializedCommand;
-        settableGame2.setCoreObjectIfNull(game2);
+        ((ICommand) command).setCoreObjectIfNull(originalGame2);
+        ((ICommand) deserializedCommand).setCoreObjectIfNull(originalGame2);
 
         command.execute();
         deserializedCommand.execute();
 
         // Assert
-        Assertions.assertEquals("__e__e__e__e_", game1.getMaskedWord());
-        Assertions.assertEquals(1, game1.getUsedCharacter().size());
-        Assertions.assertTrue(game1.getUsedCharacter().contains('e'));
-        Assertions.assertFalse(game1.isFinished());
+        Assertions.assertEquals("__e__e__e__e_", ((IGame) originalGame1).getMaskedWord());
+        Assertions.assertEquals(1, ((IGame) originalGame1).getUsedCharacter().size());
+        Assertions.assertTrue(((IGame) originalGame1).getUsedCharacter().contains('e'));
+        Assertions.assertFalse(((IGame) originalGame1).isFinished());
 
-        Assertions.assertEquals("__e__e__e__e_", game2.getMaskedWord());
-        Assertions.assertEquals(1, game2.getUsedCharacter().size());
-        Assertions.assertTrue(game2.getUsedCharacter().contains('e'));
-        Assertions.assertFalse(game2.isFinished());
+        Assertions.assertEquals("__e__e__e__e_", ((IGame) originalGame2).getMaskedWord());
+        Assertions.assertEquals(1, ((IGame) originalGame2).getUsedCharacter().size());
+        Assertions.assertTrue(((IGame) originalGame2).getUsedCharacter().contains('e'));
+        Assertions.assertFalse(((IGame) originalGame2).isFinished());
     }
 
     @Test
-    void theCorrelatedEventIsWordChanged() throws IOException {
+    void theCorrelatedInformationAreCorrect() throws IOException {
 
         // Arrange
         IGame game = new Game();
@@ -108,6 +100,8 @@ public class GuessCommandTest {
         // Act
 
         // Assert
+        Assertions.assertNotNull(command.getUniqeId());
         Assertions.assertEquals(GameEvent.searchedWordChange, command.getCorrelatedEvent());
+        Assertions.assertEquals(CommandType.guess, command.getCorrelatedType());
     }
 }

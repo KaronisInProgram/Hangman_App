@@ -21,8 +21,6 @@ import java.util.UUID;
 public class GameHandlerTest {
 
     static final CharSequence ALICE = "Alice";
-    static final CharSequence BOB = "Bob";
-    static final CharSequence CHARLIE = "Charlie";
 
     @Test
     void initializingOfAGGameSetsItAsTheActiveGame() throws IOException, ASAPException {
@@ -35,7 +33,7 @@ public class GameHandlerTest {
         alicePlayer.setName(ALICE.toString());
 
         // Arrange
-        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider());
+        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider(), UUID.randomUUID());
 
         // Act
         handlerAlice.initializeGame(alicePlayer);
@@ -55,7 +53,7 @@ public class GameHandlerTest {
         alicePlayer.setName(ALICE.toString());
 
         // Arrange
-        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider());
+        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider(), UUID.randomUUID());
 
         // Act
         handlerAlice.initializeGame(alicePlayer);

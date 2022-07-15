@@ -12,23 +12,23 @@ import java.util.UUID;
 
 public class GameAPI implements IGameAPI{
 
-    private IGameHandler handler;
-    private ASAPPeer peer;
+    private final ASAPPeer peer;
+    private final UUID uniqeId;
 
-    public GameAPI(IGameHandler handler, ASAPPeer peer) {
-        this.handler = handler;
+    public GameAPI(IGameHandler handler, ASAPPeer peer, UUID uniqeId) {
         this.peer = peer;
+        this.uniqeId = uniqeId;
 
-        this.peer.addASAPMessageReceivedListener(APP_FORMAT, new CommandReceiver(this.peer, this.handler));
-        this.peer.addASAPMessageReceivedListener(APP_FORMAT, new SearchReceiver(this.peer, this.handler));
-        this.peer.addASAPMessageReceivedListener(APP_FORMAT, new SynchronizeReceiver(this.peer, this.handler));
+        this.peer.addASAPMessageReceivedListener(APP_FORMAT, new CommandReceiver(handler));
+        this.peer.addASAPMessageReceivedListener(APP_FORMAT, new SearchReceiver(this.peer, handler, uniqeId));
+        this.peer.addASAPMessageReceivedListener(APP_FORMAT, new SynchronizeReceiver(this.peer, handler, uniqeId));
     }
 
     @Override
     public void sendCommand(ICommand command, UUID gameid) throws ASAPException, IOException {
 
         byte[] serializedMessage = new GameCommand(command).getSerializedMessage();
-        String uri = CommandReceiver.option_command + "/" + gameid.toString() + "/" + UUID.randomUUID();
+        String uri = CommandReceiver.option_command + "/" + uniqeId.toString() + "/" + UUID.randomUUID();
         this.peer.sendASAPMessage(APP_FORMAT, uri, serializedMessage);
 
     }
@@ -36,14 +36,14 @@ public class GameAPI implements IGameAPI{
     @Override
     public void searchGames() throws ASAPException {
 
-        String uri = SearchReceiver.option_search + "/" + this.peer.getPeerID() + "/request";
+        String uri = SearchReceiver.option_search + "/" + uniqeId.toString() + "/request";
         this.peer.sendASAPMessage(APP_FORMAT, uri, "question".getBytes());
     }
 
     @Override
-    public void synchronizeGame(UUID gameid) throws ASAPException, IOException {
+    public void synchronizeGame(UUID gameid) throws ASAPException {
 
-        String uri = SynchronizeReceiver.option_synchronize + "/" + gameid.toString() + "/request";
+        String uri = SynchronizeReceiver.option_synchronize + "/" + uniqeId.toString() + "/request";
         this.peer.sendASAPMessage(APP_FORMAT, uri, "question".getBytes());
     }
 

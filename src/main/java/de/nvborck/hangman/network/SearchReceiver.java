@@ -9,6 +9,7 @@ import net.sharksystem.asap.*;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static de.nvborck.hangman.network.Utils.*;
@@ -17,13 +18,14 @@ public class SearchReceiver implements ASAPMessageReceivedListener {
 
     public static final String option_search = "search";
 
+    private final ASAPPeer peer;
+    private final IGameHandler handler;
+    private final UUID uniqeId;
 
-    private ASAPPeer peer;
-    private IGameHandler handler;
-
-    public SearchReceiver(ASAPPeer peer, IGameHandler handler) {
+    public SearchReceiver(ASAPPeer peer, IGameHandler handler, UUID uniqeId) {
         this.peer = peer;
         this.handler = handler;
+        this.uniqeId = uniqeId;
     }
 
 
@@ -45,7 +47,7 @@ public class SearchReceiver implements ASAPMessageReceivedListener {
         // When Id equals to local peer then it's an answer ...
         String id = splits.getOrDefault(Utils.id, "");
         String extra = splits.getOrDefault((Utils.extra + 1), "");
-        if(this.peer.samePeer(id) && extra.equals(extra_answer)) {
+        if(uniqeId.toString().equals(id)  && extra.equals(extra_answer)) {
             try {
 
                 // Ignore all but the last message;

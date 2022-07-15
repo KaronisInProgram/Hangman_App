@@ -9,20 +9,16 @@ import net.sharksystem.asap.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static de.nvborck.hangman.network.Utils.*;
-import static de.nvborck.hangman.network.Utils.extra_answer;
 
 public class CommandReceiver implements ASAPMessageReceivedListener {
 
     public static final String option_command = "command";
 
-    private ASAPPeer peer;
-    private IGameHandler handler;
+    private final IGameHandler handler;
 
-    public CommandReceiver(ASAPPeer peer, IGameHandler handler) {
-        this.peer = peer;
+    public CommandReceiver(IGameHandler handler) {
         this.handler = handler;
     }
 
