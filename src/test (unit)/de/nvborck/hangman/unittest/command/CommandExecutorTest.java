@@ -1,4 +1,4 @@
-package de.nvborck.tests.unit.command;
+package de.nvborck.hangman.unittest.command;
 
 import de.nvborck.hangman.command.*;
 import de.nvborck.hangman.data.game.Game;

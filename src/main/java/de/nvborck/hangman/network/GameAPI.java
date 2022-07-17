@@ -28,7 +28,7 @@ public class GameAPI implements IGameAPI{
     public void sendCommand(ICommand command, UUID gameid) throws ASAPException, IOException {
 
         byte[] serializedMessage = new GameCommand(command).getSerializedMessage();
-        String uri = CommandReceiver.option_command + "/" + uniqeId.toString() + "/" + UUID.randomUUID();
+        String uri = CommandReceiver.option_command + "/" + gameid.toString() + "/" + UUID.randomUUID();
         this.peer.sendASAPMessage(APP_FORMAT, uri, serializedMessage);
 
     }

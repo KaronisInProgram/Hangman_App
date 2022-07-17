@@ -1,12 +1,10 @@
-package de.nvborck.tests.unit.command;
+package de.nvborck.hangman.unittest.command;
 
 import de.nvborck.hangman.command.CommandType;
-import de.nvborck.hangman.command.GuessCommand;
 import de.nvborck.hangman.command.ICommand;
 import de.nvborck.hangman.command.JoinCommand;
 import de.nvborck.hangman.data.game.Game;
 import de.nvborck.hangman.data.game.GameEvent;
-import de.nvborck.hangman.data.game.IGame;
 import de.nvborck.hangman.data.game.IPlayerManager;
 import de.nvborck.hangman.data.player.IPlayer;
 import de.nvborck.hangman.data.player.Player;

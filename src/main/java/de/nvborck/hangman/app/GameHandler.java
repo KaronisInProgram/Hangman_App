@@ -29,7 +29,7 @@ public class GameHandler implements IGameHandler, IGameNotifier {
     private final IWordProvider provider;
     private UUID gameId = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-    private JoinAfterSynchronize afterSynchronize;
+    private IGameListener afterSynchronize;
 
     private final IGameAPI api;
     private final List<Pair<GameEvent, IGameListener>> listeners = new ArrayList<>();
@@ -62,7 +62,7 @@ public class GameHandler implements IGameHandler, IGameNotifier {
             this.handleCommand(new JoinCommand(this.game, player));
         } else {
             this.api.synchronizeGame(gameid);
-            this.afterSynchronize = new JoinAfterSynchronize(this, player);
+            this.afterSynchronize = () -> this.joinGame(this.getGameId(), player);
             this.addGameListener(GameEvent.gameSynchronized, afterSynchronize);
         }
     }

@@ -1,4 +1,4 @@
-package de.nvborck.tests.unit.command;
+package de.nvborck.hangman.unittest.command;
 
 import de.nvborck.hangman.data.game.GameEvent;
 import de.nvborck.hangman.command.*;
@@ -7,7 +7,6 @@ import de.nvborck.hangman.data.game.IGame;
 import de.nvborck.hangman.data.game.IPlayerManager;
 import de.nvborck.hangman.data.player.IPlayer;
 import de.nvborck.hangman.data.player.Player;
-import de.nvborck.hangman.data.wordprovider.SimpleWordProvider;
 import net.sharksystem.asap.ASAPException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

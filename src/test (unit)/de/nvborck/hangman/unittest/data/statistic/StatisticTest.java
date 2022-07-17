@@ -1,4 +1,4 @@
-package de.nvborck.tests.unit.data.statistic;
+package de.nvborck.hangman.unittest.data.statistic;
 
 import de.nvborck.hangman.data.IReadOperation;
 import de.nvborck.hangman.data.IWriteOperation;

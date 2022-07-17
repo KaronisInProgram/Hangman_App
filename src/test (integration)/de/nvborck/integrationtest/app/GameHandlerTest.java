@@ -1,4 +1,4 @@
-package de.nvborck.tests.integration.app;
+package de.nvborck.integrationtest.app;
 
 import de.nvborck.hangman.app.GameHandler;
 import de.nvborck.hangman.app.IGameHandler;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
-
 
 public class GameHandlerTest {
 
@@ -41,7 +40,7 @@ public class GameHandlerTest {
         bobPlayer.setName(BOB.toString());
 
         // Arrange
-        alicePeer.startEncounter(de.nvborck.tests.integration.app.PortHelper.getPort(), bobPeer);
+        alicePeer.startEncounter(PortHelper.getPort(), bobPeer);
         handlerBob.initializeGame(bobPlayer);
         Thread.sleep(2000);
 
@@ -89,8 +88,8 @@ public class GameHandlerTest {
         handlerAlice.initializeGame(alicePlayer);
         handlerBob.initializeGame(bobPlayer);
 
-        charliePeer.startEncounter(de.nvborck.tests.integration.app.PortHelper.getPort(), alicePeer);
-        charliePeer.startEncounter(de.nvborck.tests.integration.app.PortHelper.getPort(), bobPeer);
+        charliePeer.startEncounter(PortHelper.getPort(), alicePeer);
+        charliePeer.startEncounter(PortHelper.getPort(), bobPeer);
 
         Thread.sleep(500);
 
@@ -139,5 +138,48 @@ public class GameHandlerTest {
         Assertions.assertEquals(alicePlayer, handlerBob.getActivePlayer());
         Assertions.assertEquals(handlerAlice.getMaskedWord(), handlerBob.getMaskedWord());
         Assertions.assertIterableEquals(handlerAlice.getUsedCharacter(), handlerBob.getUsedCharacter());
+    }
+
+    @Test
+    void initializingOfAGGameSetsItAsTheActiveGame() throws IOException, ASAPException {
+
+        Collection<CharSequence> formats = new ArrayList<>();
+        formats.add(IGameAPI.APP_FORMAT);
+        ASAPTestPeerFS alicePeer = new ASAPTestPeerFS(ALICE, formats);
+
+        IPlayer alicePlayer = new Player();
+        alicePlayer.setName(ALICE.toString());
+
+        // Arrange
+        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider(), UUID.randomUUID());
+
+        // Act
+        handlerAlice.initializeGame(alicePlayer);
+
+        // Assert
+        Assertions.assertTrue(handlerAlice.hasActiveGame());
+    }
+
+    @Test
+    void initializingAGameWhenThereIsAnActiveGameOverridesFirstGame() throws IOException, ASAPException {
+
+        Collection<CharSequence> formats = new ArrayList<>();
+        formats.add(IGameAPI.APP_FORMAT);
+        ASAPTestPeerFS alicePeer = new ASAPTestPeerFS(ALICE, formats);
+
+        IPlayer alicePlayer = new Player();
+        alicePlayer.setName(ALICE.toString());
+
+        // Arrange
+        IGameHandler handlerAlice = new GameHandler(alicePeer, new SimpleWordProvider(), UUID.randomUUID());
+
+        // Act
+        handlerAlice.initializeGame(alicePlayer);
+        UUID gameId1 = handlerAlice.getGameId();
+        handlerAlice.initializeGame(alicePlayer);
+        UUID gameId2 = handlerAlice.getGameId();
+
+        // Assert
+        Assertions.assertNotEquals(gameId1, gameId2);
     }
 }
