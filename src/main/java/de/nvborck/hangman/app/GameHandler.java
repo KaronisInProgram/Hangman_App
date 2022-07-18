@@ -43,7 +43,7 @@ public class GameHandler implements IGameHandler, IGameNotifier {
     }
 
     @Override
-    public void initializeGame(IPlayer player) throws IOException, ASAPException {
+    public void initializeGame(IPlayer player) throws IOException {
         this.executor = new CommandExecutor();
         this.game = new Game();
         this.gameId = UUID.randomUUID();
@@ -56,21 +56,31 @@ public class GameHandler implements IGameHandler, IGameNotifier {
     }
 
     @Override
-    public void joinGame(UUID gameid, IPlayer player) throws IOException, ASAPException {
+    public void joinGame(UUID gameid, IPlayer player) throws IOException {
 
         if(this.gameId.equals(gameid)) {
             this.handleCommand(new JoinCommand(this.game, player));
         } else {
-            this.api.synchronizeGame(gameid);
+            try {
+                this.api.synchronizeGame(gameid);
+            } catch (ASAPException e) {
+                System.out.println("HangmanInternals (GameHandler) --> Could not Communicate With Other Games! Possible Offline!");
+                return;
+            }
+
             this.afterSynchronize = () -> this.joinGame(this.getGameId(), player);
             this.addGameListener(GameEvent.gameSynchronized, afterSynchronize);
         }
     }
 
     @Override
-    public void searchGames() throws IOException, ASAPException {
+    public void searchGames() throws IOException {
         this.openGames.clear();
-        this.api.searchGames();
+        try {
+            this.api.searchGames();
+        } catch (ASAPException e) {
+            System.out.println("HangmanInternals (GameHandler) --> Could not Communicate With Other Games! Possible Offline!");
+        }
     }
 
     @Override
@@ -94,7 +104,7 @@ public class GameHandler implements IGameHandler, IGameNotifier {
     }
 
     @Override
-    public void guess(char character, IPlayer player) throws IOException, ASAPException {
+    public void guess(char character, IPlayer player) throws IOException {
         ICommand guess = new GuessCommand(this.game, character, player);
         this.handleCommand(guess);
     }
@@ -149,10 +159,14 @@ public class GameHandler implements IGameHandler, IGameNotifier {
         return this.executor.getCommands();
     }
 
-    private void handleCommand(ICommand command) throws IOException, ASAPException {
+    private void handleCommand(ICommand command) throws IOException {
 
         this.handleCommandWithoutSharing(command);
-        this.api.sendCommand(command, this.gameId);
+        try {
+            this.api.sendCommand(command, this.gameId);
+        } catch (ASAPException e) {
+            System.out.println("HangmanInternals (GameHandler) --> Could not Communicate With Other Games! Possible Offline!");
+        }
     }
 
     @Override
