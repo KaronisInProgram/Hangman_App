@@ -1,4 +1,4 @@
-package de.nvborck.hangman.unittest.data.player;
+package de.nvborck.unittest.data.player;
 
 
 import de.nvborck.hangman.data.IReadOperation;

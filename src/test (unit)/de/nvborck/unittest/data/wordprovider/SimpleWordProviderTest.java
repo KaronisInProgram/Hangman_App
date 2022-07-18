@@ -1,4 +1,4 @@
-package de.nvborck.hangman.unittest.data.wordprovider;
+package de.nvborck.unittest.data.wordprovider;
 
 import de.nvborck.hangman.data.wordprovider.IWordProvider;
 import de.nvborck.hangman.data.wordprovider.SimpleWordProvider;
